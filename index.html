@@ -692,15 +692,7 @@
                         )}
 
                         {gameState === 'idle' && (
-                            <button 
-                                onClick={() => {
-                                    setIsUpdateMode(true);
-                                    setGameState('setup');
-                                }}
-                                className="btn btn-update"
-                            >
-                                Update Images
-                            </button>
+                            
                         )}
 
                         {gameState !== 'setup' && gameState !== 'idle' && gameState !== 'complete' && gameState !== 'failed' && gameState !== 'loading' && (
@@ -714,4 +706,5 @@
         ReactDOM.render(<MatchingGame />, document.getElementById('root'));
     </script>
 </body>
+
 </html>
