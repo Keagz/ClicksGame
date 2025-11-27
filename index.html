@@ -691,9 +691,6 @@
                             </div>
                         )}
 
-                        {gameState === 'idle' && (
-                            
-                        )}
 
                         {gameState !== 'setup' && gameState !== 'idle' && gameState !== 'complete' && gameState !== 'failed' && gameState !== 'loading' && (
                             <button onClick={() => setGameState('idle')} className="btn btn-back">BACK</button>
@@ -708,3 +705,4 @@
 </body>
 
 </html>
+
