@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicks Bump Beauty - Matching Game</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f3e7f1 0%, #fce4ec 50%, #f3e7f1 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 3rem;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            max-width: 400px;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #7c3aed;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #9333ea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 1.5rem 4rem;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+            transition: all 0.3s;
+            margin: 1rem auto;
+            display: block;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            background: #7c3aed;
+            padding: 1rem 3rem;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .game-stats {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .stat-value.purple {
+            color: #7c3aed;
+        }
+
+        .stat-value.red {
+            color: #dc2626;
+        }
+
+        .icon-circle {
+            width: 192px;
+            height: 192px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.3);
+        }
+
+        .icon {
+            width: 96px;
+            height: 96px;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+        }
+
+        .tile {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            perspective: 1000px;
+            border: none;
+            background: transparent;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .tile:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .tile:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .tile-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .tile-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .tile-back, .tile-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+        }
+
+        .tile-back.has-image {
+            background: #f3f4f6;
+        }
+
+        .tile-back img, .tile-front img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .tile-front {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 0.5rem;
+        }
+
+        .countdown-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .countdown-circle {
+            background: white;
+            border-radius: 50%;
+            width: 256px;
+            height: 256px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .countdown-number {
+            font-size: 9rem;
+            font-weight: bold;
+            color: #7c3aed;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .upload-zone {
+            border: 4px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: border-color 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: #7c3aed;
+        }
+
+        .upload-zone.purple:hover {
+            border-color: #7c3aed;
+        }
+
+        .upload-zone.pink:hover {
+            border-color: #ec4899;
+        }
+
+        .upload-zone.blue {
+            border-color: #93c5fd;
+        }
+
+        .upload-zone.blue:hover {
+            border-color: #3b82f6;
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            stroke: #7c3aed;
+        }
+
+        .upload-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+
+        .help-text {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .success-text {
+            font-size: 1.25rem;
+            color: #059669;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .info-text {
+            font-size: 1.25rem;
+            color: #3b82f6;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-preview {
+            max-width: 300px;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-update {
+            background: #6b7280;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .btn-update:hover {
+            background: #4b5563;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        h2.green { color: #059669; }
+        h2.orange { color: #ea580c; }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .text-3xl {
+            font-size: 1.875rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        .text-gray {
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        if (!window.storage) {
+            window.storage = {
+                async get(key) {
+                    const value = localStorage.getItem(key);
+                    return value ? { key, value } : null;
+                },
+                async set(key, value) {
+                    localStorage.setItem(key, value);
+                    return { key, value };
+                },
+                async delete(key) {
+                    localStorage.removeItem(key);
+                    return { key, deleted: true };
+                },
+                async list(prefix) {
+                    const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+                    return { keys };
+                }
+            };
+        }
+
+        const ShuffleIcon = () => (
+            <svg className="icon" viewBox="0 0 24 24">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+        );
+
+        const UploadIcon = () => (
+            <svg className="upload-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        );
+
+        const MatchingGame = () => {
+            const [gameState, setGameState] = useState('loading');
+            const [tiles, setTiles] = useState([]);
+            const [flippedIndices, setFlippedIndices] = useState([]);
+            const [matchedPairs, setMatchedPairs] = useState([]);
+            const [countdown, setCountdown] = useState(3);
+            const [previewTimer, setPreviewTimer] = useState(5);
+            const [timer, setTimer] = useState(0);
+            const [moves, setMoves] = useState(0);
+
+            // Pre-configured images - loaded automatically
+            const productImages = [
+                'https://i.ibb.co/Kxjgnm2J/8.png',
+                'https://i.ibb.co/ymTLgVXh/7.png',
+                'https://i.ibb.co/7JwyJM2h/6.png',
+                'https://i.ibb.co/840B9Qnr/5.png',
+                'https://i.ibb.co/XZzC9Ntv/4.png',
+                'https://i.ibb.co/W4zvdx35/3.png',
+                'https://i.ibb.co/Lz3mBSJJ/2.png',
+                'https://i.ibb.co/NgnghkMk/1.png'
+            ];
+            
+            const logoImage = 'https://i.ibb.co/MDncKyxk/Whats-App-Image-2025-11-27-at-18-19-36-removebg-preview.png';
+            const backImage = 'https://i.ibb.co/MDncKyxk/Whats-App-Image-2025-11-27-at-18-19-36-removebg-preview.png';
+
+            // Auto-start the game - images are pre-loaded
+            useEffect(() => {
+                setGameState('idle');
+            }, []);
+
+            const startGame = () => {
+                setFlippedIndices([]);
+                setMatchedPairs([]);
+                setMoves(0);
+                setTimer(0);
+                setPreviewTimer(5);
+                
+                const pairs = [...productImages, ...productImages];
+                const shuffled = pairs.sort(() => Math.random() - 0.5).map((img, idx) => ({
+                    id: idx,
+                    image: img
+                }));
+                setTiles(shuffled);
+                
+                setTimeout(() => setGameState('preview'), 50);
+            };
+
+            useEffect(() => {
+                if (gameState === 'preview' && previewTimer > 0) {
+                    const timer = setTimeout(() => setPreviewTimer(previewTimer - 1), 1000);
+                    return () => clearTimeout(timer);
+                } else if (gameState === 'preview' && previewTimer === 0) {
+                    setGameState('countdown');
+                    setCountdown(3);
+                }
+            }, [gameState, previewTimer]);
+
+            useEffect(() => {
+                if (gameState === 'countdown' && countdown > 0) {
+                    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+                    return () => clearTimeout(timer);
+                } else if (gameState === 'countdown' && countdown === 0) {
+                    setGameState('playing');
+                }
+            }, [gameState, countdown]);
+
+            useEffect(() => {
+                if (gameState === 'playing') {
+                    const interval = setInterval(() => {
+                        setTimer(t => {
+                            if (t + 1 >= 30) {
+                                setGameState('failed');
+                                return 30;
+                            }
+                            return t + 1;
+                        });
+                    }, 1000);
+                    return () => clearInterval(interval);
+                }
+            }, [gameState]);
+
+            useEffect(() => {
+                if (matchedPairs.length === 8 && gameState === 'playing') {
+                    setGameState('complete');
+                }
+            }, [matchedPairs, gameState]);
+
+            const handleTileClick = (index) => {
+                if (gameState !== 'playing') return;
+                if (flippedIndices.includes(index)) return;
+                if (matchedPairs.includes(tiles[index].image)) return;
+                if (flippedIndices.length === 2) return;
+
+                const newFlipped = [...flippedIndices, index];
+                setFlippedIndices(newFlipped);
+
+                if (newFlipped.length === 2) {
+                    setMoves(moves + 1);
+                    const [first, second] = newFlipped;
+                    
+                    if (tiles[first].image === tiles[second].image) {
+                        setMatchedPairs([...matchedPairs, tiles[first].image]);
+                        setFlippedIndices([]);
+                    } else {
+                        setTimeout(() => setFlippedIndices([]), 1000);
+                    }
+                }
+            };
+
+            const isTileFlipped = (index) => {
+                if (gameState === 'preview') return true;
+                if (matchedPairs.includes(tiles[index]?.image)) return true;
+                return flippedIndices.includes(index);
+            };
+
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            return (
+                <div className="container">
+                    <div style={{width: '100%'}}>
+                        <div className="header">
+                            {logoImage ? (
+                                <img src={logoImage} alt="Logo" className="logo" />
+                            ) : (
+                                <>
+                                    <h1 className="title">Clicks & Beauty</h1>
+                                    <p className="subtitle">Match the Products</p>
+                                </>
+                            )}
+                        </div>
+
+                        {gameState === 'loading' && (
+                            <div className="card text-center">
+                                <div className="animate-pulse">
+                                    <div className="icon-circle">
+                                        <ShuffleIcon />
+                                    </div>
+                                    <p className="text-2xl text-gray">Loading game...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameState === 'idle' && (
+                            <div className="card text-center">
+                                <div className="mb-12">
+                                    <div className="icon-circle">
+                                        <ShuffleIcon />
+                                    </div>
+                                    <h2 className="mb-4">Match the Products</h2>
+                                    <p className="text-2xl text-gray">in 30 seconds!</p>
+                                </div>
+                                <button onClick={startGame} className="btn">START</button>
+                            </div>
+                        )}
+
+                        {(gameState === 'preview' || gameState === 'countdown' || gameState === 'playing' || gameState === 'complete' || gameState === 'failed') && (
+                            <div className="game-stats">
+                                <div className="stat">
+                                    <p className="stat-label">Get ready!</p>
+                                    <p className="stat-value purple">
+                                        {gameState === 'preview' ? `0${previewTimer}` : countdown > 0 ? `0${countdown}` : '00'}
+                                    </p>
+                                </div>
+                                <div className="stat">
+                                    <p className="stat-label">Number of actions:</p>
+                                    <p className="stat-value">{moves}</p>
+                                </div>
+                                <div className="stat">
+                                    <p className="stat-label">Time:</p>
+                                    <p className={`stat-value ${timer >= 25 ? 'red' : ''}`}>
+                                        {formatTime(timer)} / 00:30
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameState === 'countdown' && countdown > 0 && (
+                            <div className="countdown-overlay">
+                                <div className="countdown-circle">
+                                    <span className="countdown-number">{countdown}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {(gameState === 'preview' || gameState === 'countdown' || gameState === 'playing') && tiles.length > 0 && (
+                            <div className="game-board">
+                                {tiles.map((tile, index) => (
+                                    <button
+                                        key={tile.id}
+                                        onClick={() => handleTileClick(index)}
+                                        disabled={gameState !== 'playing'}
+                                        className="tile"
+                                    >
+                                        <div className={`tile-inner ${isTileFlipped(index) ? 'flipped' : ''}`}>
+                                            <div className={`tile-back ${backImage ? 'has-image' : ''}`}>
+                                                {backImage ? (
+                                                    <img src={backImage} alt="Tile back" />
+                                                ) : (
+                                                    <ShuffleIcon />
+                                                )}
+                                            </div>
+                                            <div className="tile-front">
+                                                <img src={tile.image} alt="Product" />
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {gameState === 'complete' && (
+                            <div className="card text-center">
+                                <h2 className="green mb-6">🎉 Congratulations! 🎉</h2>
+                                <p className="text-3xl text-gray mb-4">You matched all the products in time!</p>
+                                <div className="text-2xl text-gray mb-8">
+                                    <p>Time: <strong>{formatTime(timer)}</strong> / 00:30</p>
+                                    <p>Moves: <strong>{moves}</strong></p>
+                                </div>
+                                <button onClick={() => setGameState('idle')} className="btn">PLAY AGAIN</button>
+                            </div>
+                        )}
+
+                        {gameState === 'failed' && (
+                            <div className="card text-center">
+                                <h2 className="orange mb-6">⏰ Time's Up!</h2>
+                                <p className="text-3xl text-gray mb-4">Sorry, you didn't match all the products in time.</p>
+                                <p className="text-2xl text-gray mb-8">Don't worry - try again and see if you can beat the clock!</p>
+                                <div className="text-2xl text-gray mb-8">
+                                    <p>Matches Found: <strong>{matchedPairs.length}</strong> / 8</p>
+                                    <p>Moves: <strong>{moves}</strong></p>
+                                </div>
+                                <button onClick={() => setGameState('idle')} className="btn">TRY AGAIN</button>
+                            </div>
+                        )}
+
+                        {gameState === 'idle' && (
+                            <button 
+                                onClick={() => {
+                                    setIsUpdateMode(true);
+                                    setGameState('setup');
+                                }}
+                                className="btn btn-update"
+                            >
+                                Update Images
+                            </button>
+                        )}
+
+                        {gameState !== 'setup' && gameState !== 'idle' && gameState !== 'complete' && gameState !== 'failed' && gameState !== 'loading' && (
+                            <button onClick={() => setGameState('idle')} className="btn btn-back">BACK</button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<MatchingGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
