@@ -204,12 +204,12 @@
         }
 
         .tile-back {
-            background: #8b6ba8;
+            background: linear-gradient(135deg, #a084b8 0%, #8b6ba8 50%, #7d5a9a 100%);
             padding: 1rem;
         }
 
         .tile-back.has-image {
-            background: #8b6ba8;
+            background: linear-gradient(135deg, #a084b8 0%, #8b6ba8 50%, #7d5a9a 100%);
         }
 
         .tile-back img, .tile-front img {
@@ -474,8 +474,8 @@
                 'https://i.ibb.co/NgnghkMk/1.png'
             ];
             
-            const logoImage = 'https://i.ibb.co/MDncKyxk/Whats-App-Image-2025-11-27-at-18-19-36-removebg-preview.png';
-            const backImage = 'https://i.ibb.co/MDncKyxk/Whats-App-Image-2025-11-27-at-18-19-36-removebg-preview.png';
+            const logoImage = 'https://i.ibb.co/cXYVBy71/Logo.png';
+            const backImage = 'https://i.ibb.co/cXYVBy71/Logo.png';
 
             // Auto-start the game - images are pre-loaded
             useEffect(() => {
@@ -686,7 +686,6 @@
                                 <button onClick={() => setGameState('idle')} className="btn">TRY AGAIN</button>
                             </div>
                         )}
-
 
                         {gameState !== 'setup' && gameState !== 'idle' && gameState !== 'complete' && gameState !== 'failed' && gameState !== 'loading' && (
                             <button onClick={() => setGameState('idle')} className="btn btn-back">BACK</button>
